@@ -25,4 +25,14 @@ This project analyzes Spotify song data and presents insights through an interac
    ```
 
 2. Install required packages:
-```
+   ```bash
+   pip install -r requirements.txt
+   ```
+---
+4. Create a notebook or file, based on what you are doing, and include your name somewhere in that files name
+---
+## Next Steps
+1. Explore and clean the Spotify dataset
+2. Create various visualizations to understand the data
+3. Select the most insightful visualizations for the dashboard
+4. Implement the Plotly Dash dashboard
