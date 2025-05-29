@@ -1,12 +1,13 @@
+---
 # Spotify Songs Analysis Dashboard
-
+---
 This project analyzes Spotify song data and presents insights through an interactive Plotly Dash dashboard. The analysis is first conducted in a Jupyter notebook to explore the data and determine the most insightful visualizations.
-
+---
 ## Project Structure
-- `spotify_analysis.ipynb`: Jupyter notebook containing data analysis and visualization exploration
+- `eli_analysis.ipynb`: Jupyter notebook containing data analysis and testing for dash plotly
 - `requirements.txt`: Python dependencies required for the project
-- (Dashboard files will be added later)
-
+- `data/` : Includes the dataset from Kaggle
+---
 ## Setup Instructions
 
 1. Create and activate a virtual environment:
@@ -15,18 +16,19 @@ python -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
 ```
 
+On windows:
+```bash
+python -m venv venv
+source venv/scripts/activate
+```
+---
 2. Install required packages:
 ```bash
 pip install -r requirements.txt
 ```
-
-3. Launch Jupyter Notebook:
-```bash
-jupyter notebook
-```
-
-4. Open `spotify_analysis.ipynb` to start the analysis
-
+---
+4. Create a notebook or file, based on what you are doing, and include your name somewhere in that files name
+---
 ## Next Steps
 1. Explore and clean the Spotify dataset
 2. Create various visualizations to understand the data
