@@ -11,17 +11,16 @@ This project analyzes Spotify song data and presents insights through an interac
 ## Setup Instructions
 
 1. Create and activate a virtual environment:
-```bash
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-```
+   ```bash
+   # On macOS/Linux:
+   python -m venv venv
+   source venv/bin/activate
+   
+   # On Windows:
+   python -m venv venv
+   venv\Scripts\activate
+   ```
 
-On windows:
-```bash
-python -m venv venv
-source venv/scripts/activate
-```
----
 2. Install required packages:
 ```bash
 pip install -r requirements.txt
