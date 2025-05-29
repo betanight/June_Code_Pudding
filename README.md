@@ -41,3 +41,16 @@ This project analyzes Spotify song data and presents insights through an interac
 2. Create various visualizations to understand the data
 3. Select the most insightful visualizations for the dashboard
 4. Implement the Plotly Dash dashboard
+---
+
+## Analysis Examples:
+
+---
+### Relationship between Features and Popularity:
+
+![Features Relationship with Popularity](images/featurexpopularity.png)
+---
+### Heatmap of Features Correlation:
+
+![Heatmap](images/heatmap.png)
+---
