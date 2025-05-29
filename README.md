@@ -50,7 +50,7 @@ This project analyzes Spotify song data and presents insights through an interac
 
 ![Features Relationship with Popularity](images/featurexpopularity.png)
 ---
-### Heatmap of Features Correlation:
+### Heatmap of Feature Correlation:
 
 ![Heatmap](images/heatmap.png)
 ---
