@@ -34,8 +34,8 @@ This project analyzes Spotify song data and presents insights through an interac
 
 1. **Clone the Repository**
    ```bash
-   git clone <repository-url>
-   cd <repository-name>
+   git clone https://github.com/betanight/June_Code_Pudding.git
+   cd June_Code_Pudding
    ```
 
 2. **Create and Activate Virtual Environment (Optional but Recommended)**
