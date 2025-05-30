@@ -6,7 +6,10 @@ This project analyzes Spotify song data and presents insights through an interac
 
 ## Project Structure
 
-- `eli_analysis.ipynb`: Jupyter notebook containing data analysis and testing for dash plotly. Analysis reveals that song popularity depends on multiple features working together rather than any single feature, making an interactive dashboard ideal for finding personalized song recommendations.
+- `notebooks/`: Directory containing all analysis notebooks
+  - `eli_analysis.ipynb`: Initial exploratory data analysis that helped define project goals and identify key insights about song feature relationships
+  - `eli_analysis_viktor.ipynb`: Advanced analysis building upon initial findings with deeper feature exploration
+  - `sohini_kmeans.ipynb`: Implementation of K-means clustering to generate new features for enhancing dashboard recommendations
 
 - `requirements.txt`: Python dependencies required for the project
 
