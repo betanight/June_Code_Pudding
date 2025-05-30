@@ -38,7 +38,7 @@ This project analyzes Spotify song data and presents insights through an interac
    cd June_Code_Pudding
    ```
 
-2. **Create and Activate Virtual Environment (Optional but Recommended)**
+2. **Create and Activate Virtual Environment (Optional but Recommended for notebook)**
    ```bash
    # On macOS/Linux
    python3 -m venv venv
