@@ -66,12 +66,28 @@ This project analyzes Spotify song data and presents insights through an interac
 
 ## Data Features Explained
 
-- **Popularity Score (0-100)**
-  - 80-100: Massive hits everyone knows
-  - 60-79: Very popular songs
-  - 40-59: Well-known songs
-  - 20-39: Moderately known songs
-  - 0-19: Less known songs
+### Track Information
+- **Title**: Name of the Track
+- **Artist**: Name of the Artist
+- **Top Genre**: Genre of the track
+- **Year**: Release Year of the track
+- **Length**: The duration of the song
+
+### Audio Features
+- **Beats per Minute (BPM)**: The tempo of the song
+- **Energy**: The higher the value, the more energetic the song
+- **Danceability**: The higher the value, the easier it is to dance to this song
+- **Loudness (dB)**: The higher the value, the louder the song
+- **Valence**: The higher the value, the more positive mood for the song
+- **Acoustic**: The higher the value, the more acoustic the song is
+- **Speechiness**: The higher the value, the more spoken words the song contains
+
+### Popularity Score (0-100)
+- 80-100: Massive hits everyone knows
+- 60-79: Very popular songs
+- 40-59: Well-known songs
+- 20-39: Moderately known songs
+- 0-19: Less known songs
 
 ## Analysis Examples
 
