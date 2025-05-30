@@ -102,6 +102,15 @@ This project analyzes Spotify song data and presents insights through an interac
 
 ![Heatmap](images/heatmap.png)
 
+---
+
+### Kmeans Clustering Data:
+
+![Kmeans](images/kmeans.png)
+
+
+---
+
 ## Tech Stack
 
 - Dash
