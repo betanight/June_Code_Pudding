@@ -13,7 +13,10 @@ import seaborn as sns
 app = Dash(__name__, suppress_callback_exceptions=True)
 server = app.server  # Expose the server variable for Render
 
-dataset_path = os.path.join('data', 'spotify-2000.csv')
+# Get the absolute path to the directory containing this file
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+# Construct the path to the data file
+dataset_path = os.path.join(BASE_DIR, 'data', 'Spotify-2000.csv')
 df = pd.read_csv(dataset_path)
 
 # Setting up clusters from sohini's code
