@@ -11,6 +11,7 @@ import seaborn as sns
 
 # Init app
 app = Dash(__name__, suppress_callback_exceptions=True)
+server = app.server  # Expose the server variable for Render
 
 dataset_path = os.path.join('data', 'spotify-2000.csv')
 df = pd.read_csv(dataset_path)
@@ -876,4 +877,6 @@ def update_page(prev_clicks, next_clicks, selected_cluster, current_page):
     return current_page
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    # Get port from environment variable or use 8050 as default
+    port = int(os.environ.get('PORT', 8050))
+    app.run(host='0.0.0.0', port=port, debug=False)
