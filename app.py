@@ -12,7 +12,14 @@ import seaborn as sns
 # Init app
 app = Dash(__name__, suppress_callback_exceptions=True)
 server = app.server  # Expose the server variable for Gunicorn
-application = app.server  # Alternative name for WSGI application
+
+# Configure server
+server.config.update(
+    dict(
+        SECRET_KEY="your_secret_key_here",
+        PORT=os.environ.get('PORT', 10000)
+    )
+)
 
 # Get the absolute path to the directory containing this file
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
