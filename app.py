@@ -153,242 +153,380 @@ def create_nav_buttons(page_number, total_pages):
 # Layout
 app.layout = html.Div([
     dcc.Store(id='cluster-page', data=0),
-    html.H1('Spotify 2000 Songs Analysis Dashboard', 
-            style={
-                'textAlign': 'center', 
-                'color': SPOTIFY_GREEN, 
-                'marginBottom': 30,
-                'paddingTop': 20,
-                'fontFamily': 'Helvetica',
-                'fontSize': '2.5em',
-                'textShadow': '2px 2px 4px rgba(0,0,0,0.3)'
-            }),
+    dcc.Store(id='audio-state', data={'playing_index': None}),
+    dcc.Store(id='preview-paths', data={}),
     
-    html.P([
-        "Welcome to the ",
-        html.Span("Spotify Songs Analysis Dashboard!", style={'color': SPOTIFY_GREEN, 'fontWeight': 'bold'}),
-        " Dive into our collection of the top 2000 songs on Spotify. ",
-        "Each visualization reveals unique patterns and insights about your favorite music. ",
-        html.Span("Let's explore!", style={'color': SPOTIFY_GREEN, 'fontWeight': 'bold'})
-    ], style=EXPLANATION_STYLE),
-    
+    # Section 1: Header and Music Style Selection
     html.Div([
-        html.H3('Discover Your Music Style', style={
-            **HEADER_STYLE,
-            'fontSize': '1.8em',
-            'textAlign': 'center',
-            'marginBottom': '25px'
-        }),
+        html.H1('Spotify 2000 Songs Analysis Dashboard', 
+                style={
+                    'textAlign': 'center', 
+                    'color': SPOTIFY_GREEN, 
+                    'marginBottom': 30,
+                    'paddingTop': 20,
+                    'fontFamily': 'Helvetica',
+                    'fontSize': '2.5em',
+                    'textShadow': '2px 2px 4px rgba(0,0,0,0.3)'
+                }),
+        
         html.P([
-            "We've analyzed the songs and grouped them into ",
-            html.Span("four distinct styles", style={'color': SPOTIFY_GREEN, 'fontWeight': 'bold'}),
-            ". Choose a style below to explore songs that match your taste:",
-            html.Br(), html.Br(),
-            html.Span("• Acoustic Mainstream: ", style=HIGHLIGHT_STYLE),
-            "Songs with rich acoustic elements and proven popularity", html.Br(),
-            html.Span("• Popular Hits: ", style=HIGHLIGHT_STYLE),
-            "Well-known artists with polished production", html.Br(),
-            html.Span("• Rising Artists: ", style=HIGHLIGHT_STYLE),
-            "Fresh talent with modern sound", html.Br(),
-            html.Span("• Live Performers: ", style=HIGHLIGHT_STYLE),
-            "Songs that capture the energy of live performance"
+            "Welcome to the ",
+            html.Span("Spotify Songs Analysis Dashboard!", style={'color': SPOTIFY_GREEN, 'fontWeight': 'bold'}),
+            " Dive into our collection of the top 2000 songs on Spotify. ",
+            "Each visualization reveals unique patterns and insights about your favorite music. ",
+            html.Span("Let's explore!", style={'color': SPOTIFY_GREEN, 'fontWeight': 'bold'})
         ], style=EXPLANATION_STYLE),
-        html.Label('Select a Music Style:', style={'color': TEXT_COLOR, 'fontWeight': 'bold', 'fontSize': '1.1em'}),
-        dcc.Dropdown(
-            id='cluster-selector',
-            options=[
-                {'label': name, 'value': num} 
-                for num, name in cluster_names.items()
-            ],
-            value=0,
-            style={
-                'backgroundColor': PLOT_BGCOLOR,
-                'color': 'white',
-                'border': f'1px solid {GRID_COLOR}',
-                'width': '100%',
-                'maxWidth': '1400px',
-                'margin': '0 auto'
-            },
-            className='dropdown-dark'
-        ),
-        dcc.Graph(id='cluster-visualization'),
-        html.Div(id='nav-buttons', style={'position': 'relative', 'height': '50px', 'marginTop': '10px'}),
-    ], style={'width': '100%', 'maxWidth': '1800px', 'margin': '0 auto', 'padding': '0 20px'}),
-    
-    html.Div([
-        html.Div([
-            html.H3('Most Popular Music Genres', style={
-                **HEADER_STYLE,
-                'fontSize': '1.8em',
-                'marginBottom': '20px'
-            }),
-            html.P([
-                "Explore the diverse world of ",
-                html.Span("music genres", style=HIGHLIGHT_STYLE),
-                " in our collection! Use the slider to reveal more or fewer genres in the visualization."
-            ], style=EXPLANATION_STYLE),
-            html.Div([
-                html.Label('Number of genres to display:', style={'color': TEXT_COLOR, 'fontWeight': 'bold', 'fontSize': '1.1em'}),
-                dcc.Slider(
-                    id='genre-count-slider',
-                    min=10,
-                    max=149,
-                    step=10,
-                    value=10,
-                    marks={
-                        10: {'label': '10', 'style': {'color': TEXT_COLOR}},
-                        50: {'label': '50', 'style': {'color': TEXT_COLOR}},
-                        100: {'label': '100', 'style': {'color': TEXT_COLOR}},
-                        149: {'label': 'All (149)', 'style': {'color': TEXT_COLOR}}
-                    },
-                    tooltip={"placement": "bottom", "always_visible": True}
-                ),
-            ], style={'margin': '20px 0'}),
-            dcc.Graph(id='genre-pie')
-        ], style={'width': '49%', 'display': 'inline-block'}),
         
         html.Div([
-            html.H3('Music Through the Years', style={
+            html.H3('Discover Your Music Style', style={
                 **HEADER_STYLE,
                 'fontSize': '1.8em',
-                'marginBottom': '20px'
+                'textAlign': 'center',
+                'marginBottom': '25px'
             }),
             html.P([
-                "Journey through time with our ",
-                html.Span("year-by-year breakdown", style=HIGHLIGHT_STYLE),
-                " of song releases. Discover which years were the most musically prolific!"
+                "We've analyzed the songs and grouped them into ",
+                html.Span("four distinct styles", style={'color': SPOTIFY_GREEN, 'fontWeight': 'bold'}),
+                ". Choose a style below to explore songs that match your taste:",
+                html.Br(), html.Br(),
+                html.Span("• Acoustic Mainstream: ", style=HIGHLIGHT_STYLE),
+                "Songs with rich acoustic elements and proven popularity", html.Br(),
+                html.Span("• Popular Hits: ", style=HIGHLIGHT_STYLE),
+                "Well-known artists with polished production", html.Br(),
+                html.Span("• Rising Artists: ", style=HIGHLIGHT_STYLE),
+                "Fresh talent with modern sound", html.Br(),
+                html.Span("• Live Performers: ", style=HIGHLIGHT_STYLE),
+                "Songs that capture the energy of live performance"
             ], style=EXPLANATION_STYLE),
-            dcc.Graph(id='year-histogram')
-        ], style={'width': '49%', 'display': 'inline-block', 'verticalAlign': 'top'})
-    ], style={'width': '100%', 'maxWidth': '1800px', 'margin': '0 auto', 'padding': '0 20px'}),
-    
-    html.Div([
-        html.H3('Explore Song Characteristics', style={
-            **HEADER_STYLE,
-            'fontSize': '1.8em',
-            'textAlign': 'center',
-            'marginBottom': '25px'
-        }),
-        html.P([
-            "Uncover the hidden patterns in your favorite music! Compare different ",
-            html.Span("song features", style=HIGHLIGHT_STYLE),
-            " to see how they relate. Try comparing ",
-            html.Span("Danceability", style={'color': SPOTIFY_GREEN, 'fontWeight': 'bold'}),
-            " with ",
-            html.Span("Energy", style={'color': SPOTIFY_GREEN, 'fontWeight': 'bold'}),
-            " to discover what makes a song perfect for dancing!"
-        ], style=EXPLANATION_STYLE),
-        html.Div([
-            html.Label('Choose what to show on the X-axis:', style={'color': TEXT_COLOR, 'fontWeight': 'bold', 'fontSize': '1.1em'}),
+            html.Label('Select a Music Style:', style={'color': TEXT_COLOR, 'fontWeight': 'bold', 'fontSize': '1.1em'}),
             dcc.Dropdown(
-                id='x-feature',
+                id='cluster-selector',
                 options=[
-                    {'label': create_feature_label(feature), 'value': feature}
-                    for feature in [
-                        'Danceability',
-                        'Energy',
-                        'Loudness (dB)',
-                        'Speechiness',
-                        'Acousticness',
-                        'Liveness',
-                        'Valence',
-                        'Beats Per Minute (BPM)'
-                    ]
+                    {'label': name, 'value': num} 
+                    for num, name in cluster_names.items()
                 ],
-                value='Energy',
+                value=0,
                 style={
                     'backgroundColor': PLOT_BGCOLOR,
                     'color': 'white',
                     'border': f'1px solid {GRID_COLOR}',
-                    'marginBottom': '10px'
+                    'width': '100%',
+                    'maxWidth': '1400px',
+                    'margin': '0 auto'
                 },
                 className='dropdown-dark'
             ),
-            html.Label('Choose what to show on the Y-axis:', style={'color': TEXT_COLOR, 'fontWeight': 'bold', 'fontSize': '1.1em'}),
+            html.Div([
+                # Radar Chart and Songs sections...
+                html.Div([
+                    html.H3('Cluster Characteristics (Average Values)', 
+                           style={'textAlign': 'center', 'color': TEXT_COLOR, 'marginBottom': '20px'}),
+                    dcc.Graph(
+                        id='radar-chart',
+                        style={'width': '600px', 'margin': '0 auto'}
+                    )
+                ], style={'marginBottom': '40px'}),
+
+                html.Div([
+                    html.H3('Top Songs in this Category', 
+                           style={'textAlign': 'center', 'color': TEXT_COLOR, 'marginBottom': '20px'}),
+                    html.Div([
+                        dcc.Graph(
+                            id='songs-chart',
+                            style={'height': '400px'}
+                        ),
+                        html.Div(id='audio-controls', 
+                                style={'marginTop': '20px', 'padding': '0 20px'}),
+                    ], style={'width': '100%', 'maxWidth': '1200px', 'margin': '0 auto'}),
+                    html.Div(id='nav-buttons', 
+                            style={'marginTop': '20px', 'textAlign': 'center'})
+                ])
+            ], style={'width': '100%', 'maxWidth': '1800px', 'margin': '0 auto', 'padding': '20px'})
+        ], style={
+            'width': '100%',
+            'maxWidth': '1800px',
+            'margin': '0 auto',
+            'padding': '20px',
+            'backgroundColor': 'rgba(43, 43, 43, 0.5)',
+            'borderRadius': '15px',
+            'border': f'1px solid {GRID_COLOR}',
+            'boxShadow': '0 4px 6px rgba(0, 0, 0, 0.1)'
+        }),
+    ], style={
+        'padding': '20px',
+        'borderBottom': f'2px solid {SPOTIFY_GREEN}',
+        'marginBottom': '40px'
+    }),
+    
+    # Section 2: Genre Analysis
+    html.Div([
+        html.H3('Genre and Timeline Analysis', 
+                style={
+                    'textAlign': 'center',
+                    'color': SPOTIFY_GREEN,
+                    'fontSize': '2em',
+                    'marginBottom': '30px',
+                    'textShadow': '2px 2px 4px rgba(0,0,0,0.3)'
+                }),
+        html.Div([
+            # Left side - Genre Analysis
+            html.Div([
+                html.Div([
+                    html.H3('Most Popular Music Genres', style={
+                        **HEADER_STYLE,
+                        'fontSize': '1.8em',
+                        'marginBottom': '20px'
+                    }),
+                    html.P([
+                        "Explore the diverse world of ",
+                        html.Span("music genres", style=HIGHLIGHT_STYLE),
+                        " in our collection! Use the slider to reveal more or fewer genres in the visualization."
+                    ], style=EXPLANATION_STYLE),
+                    html.Div([
+                        html.Label('Number of genres to display:', 
+                                 style={'color': TEXT_COLOR, 'fontWeight': 'bold', 'fontSize': '1.1em'}),
+                        dcc.Slider(
+                            id='genre-count-slider',
+                            min=10,
+                            max=149,
+                            step=10,
+                            value=10,
+                            marks={
+                                10: {'label': '10', 'style': {'color': TEXT_COLOR}},
+                                50: {'label': '50', 'style': {'color': TEXT_COLOR}},
+                                100: {'label': '100', 'style': {'color': TEXT_COLOR}},
+                                149: {'label': 'All (149)', 'style': {'color': TEXT_COLOR}}
+                            },
+                            tooltip={"placement": "bottom", "always_visible": True}
+                        ),
+                    ], style={'margin': '20px 0'}),
+                    dcc.Graph(id='genre-pie')
+                ], style={
+                    'height': '100%',
+                    'padding': '20px',
+                    'backgroundColor': 'rgba(43, 43, 43, 0.7)',
+                    'borderRadius': '15px',
+                    'border': f'1px solid {GRID_COLOR}',
+                    'boxShadow': '0 4px 6px rgba(0, 0, 0, 0.1)'
+                })
+            ], style={
+                'width': '49%',
+                'display': 'inline-block',
+                'verticalAlign': 'top',
+                'marginRight': '1%'
+            }),
+            
+            # Right side - Timeline Analysis
+            html.Div([
+                html.Div([
+                    html.H3('Music Through the Years', style={
+                        **HEADER_STYLE,
+                        'fontSize': '1.8em',
+                        'marginBottom': '20px'
+                    }),
+                    html.P([
+                        "Journey through time with our ",
+                        html.Span("year-by-year breakdown", style=HIGHLIGHT_STYLE),
+                        " of song releases. Discover which years were the most musically prolific!"
+                    ], style=EXPLANATION_STYLE),
+                    dcc.Graph(id='year-histogram')
+                ], style={
+                    'height': '100%',
+                    'padding': '20px',
+                    'backgroundColor': 'rgba(43, 43, 43, 0.7)',
+                    'borderRadius': '15px',
+                    'border': f'1px solid {GRID_COLOR}',
+                    'boxShadow': '0 4px 6px rgba(0, 0, 0, 0.1)'
+                })
+            ], style={
+                'width': '49%',
+                'display': 'inline-block',
+                'verticalAlign': 'top',
+                'marginLeft': '1%'
+            })
+        ], style={
+            'display': 'flex',
+            'justifyContent': 'space-between',
+            'alignItems': 'stretch',
+            'marginBottom': '40px'
+        })
+    ], style={
+        'width': '100%',
+        'maxWidth': '1800px',
+        'margin': '40px auto',
+        'padding': '20px'
+    }),
+    
+    # Section 3: Song Characteristics and Charts
+    html.Div([
+        html.H3('Detailed Song Analysis', 
+                style={
+                    'textAlign': 'center',
+                    'color': SPOTIFY_GREEN,
+                    'fontSize': '2em',
+                    'marginBottom': '30px',
+                    'textShadow': '2px 2px 4px rgba(0,0,0,0.3)'
+                }),
+        
+        # Song Characteristics Section
+        html.Div([
+            html.H3('Explore Song Characteristics', style={
+                **HEADER_STYLE,
+                'fontSize': '1.8em',
+                'textAlign': 'center',
+                'marginBottom': '25px'
+            }),
+            html.P([
+                "Uncover the hidden patterns in your favorite music! Compare different ",
+                html.Span("song features", style=HIGHLIGHT_STYLE),
+                " to see how they relate. Try comparing ",
+                html.Span("Danceability", style={'color': SPOTIFY_GREEN, 'fontWeight': 'bold'}),
+                " with ",
+                html.Span("Energy", style={'color': SPOTIFY_GREEN, 'fontWeight': 'bold'}),
+                " to discover what makes a song perfect for dancing!"
+            ], style=EXPLANATION_STYLE),
+            html.Div([
+                html.Label('Choose what to show on the X-axis:', 
+                          style={'color': TEXT_COLOR, 'fontWeight': 'bold', 'fontSize': '1.1em'}),
+                dcc.Dropdown(
+                    id='x-feature',
+                    options=[
+                        {'label': create_feature_label(feature), 'value': feature}
+                        for feature in [
+                            'Danceability',
+                            'Energy',
+                            'Loudness (dB)',
+                            'Speechiness',
+                            'Acousticness',
+                            'Liveness',
+                            'Valence',
+                            'Beats Per Minute (BPM)'
+                        ]
+                    ],
+                    value='Energy',
+                    style={
+                        'backgroundColor': PLOT_BGCOLOR,
+                        'color': 'white',
+                        'border': f'1px solid {GRID_COLOR}',
+                        'marginBottom': '10px'
+                    },
+                    className='dropdown-dark'
+                ),
+                html.Label('Choose what to show on the Y-axis:', 
+                          style={'color': TEXT_COLOR, 'fontWeight': 'bold', 'fontSize': '1.1em'}),
+                dcc.Dropdown(
+                    id='y-feature',
+                    options=[
+                        {'label': create_feature_label(feature), 'value': feature}
+                        for feature in [
+                            'Danceability',
+                            'Energy',
+                            'Loudness (dB)',
+                            'Speechiness',
+                            'Acousticness',
+                            'Liveness',
+                            'Valence',
+                            'Beats Per Minute (BPM)'
+                        ]
+                    ],
+                    value='Danceability',
+                    style={
+                        'backgroundColor': PLOT_BGCOLOR,
+                        'color': 'white',
+                        'border': f'1px solid {GRID_COLOR}'
+                    },
+                    className='dropdown-dark'
+                ),
+            ], style={'width': '100%', 'maxWidth': '1400px', 'margin': '0 auto'}),
+            dcc.Graph(id='feature-correlation')
+        ], style={
+            'padding': '30px',
+            'backgroundColor': 'rgba(43, 43, 43, 0.7)',
+            'borderRadius': '15px',
+            'border': f'1px solid {GRID_COLOR}',
+            'boxShadow': '0 4px 6px rgba(0, 0, 0, 0.1)',
+            'marginBottom': '40px'
+        }),
+        
+        # Chart-Topping Artists Section
+        html.Div([
+            html.H3('Chart-Topping Artists', style={
+                **HEADER_STYLE,
+                'fontSize': '1.8em',
+                'textAlign': 'center',
+                'marginBottom': '25px'
+            }),
+            html.P([
+                "Discover the ",
+                html.Span("most influential artists", style=HIGHLIGHT_STYLE),
+                " in our collection! These are the creators who have multiple hits in the top 2000 songs."
+            ], style=EXPLANATION_STYLE),
+            dcc.Graph(id='top-artists')
+        ], style={
+            'padding': '30px',
+            'backgroundColor': 'rgba(43, 43, 43, 0.7)',
+            'borderRadius': '15px',
+            'border': f'1px solid {GRID_COLOR}',
+            'boxShadow': '0 4px 6px rgba(0, 0, 0, 0.1)',
+            'marginBottom': '40px'
+        }),
+        
+        # Popularity Trend Section
+        html.Div([
+            html.H3('Popularity Across Time', style={
+                **HEADER_STYLE,
+                'fontSize': '1.8em',
+                'textAlign': 'center',
+                'marginBottom': '25px'
+            }),
+            html.P([
+                "Explore how song popularity evolves through time! Each dot represents a song, while the ",
+                html.Span("green trend line", style={'color': SPOTIFY_GREEN, 'fontWeight': 'bold'}),
+                " shows the average popularity for each year.",
+                html.Br(), html.Br(),
+                html.Span("Popularity Score Guide:", style={'textDecoration': 'underline', 'color': SPOTIFY_GREEN}),
+                html.Br(),
+                html.Span("• 80-100: ", style=HIGHLIGHT_STYLE), "Massive hits everyone knows", html.Br(),
+                html.Span("• 60-79: ", style=HIGHLIGHT_STYLE), "Very popular songs", html.Br(),
+                html.Span("• 40-59: ", style=HIGHLIGHT_STYLE), "Well-known songs", html.Br(),
+                html.Span("• 20-39: ", style=HIGHLIGHT_STYLE), "Moderately known songs", html.Br(),
+                html.Span("• 0-19: ", style=HIGHLIGHT_STYLE), "Less known songs"
+            ], style=EXPLANATION_STYLE),
+            html.Label('Filter by Genre (you can select multiple):', 
+                      style={'color': TEXT_COLOR, 'fontWeight': 'bold', 'fontSize': '1.1em'}),
             dcc.Dropdown(
-                id='y-feature',
+                id='genre-filter',
                 options=[
-                    {'label': create_feature_label(feature), 'value': feature}
-                    for feature in [
-                        'Danceability',
-                        'Energy',
-                        'Loudness (dB)',
-                        'Speechiness',
-                        'Acousticness',
-                        'Liveness',
-                        'Valence',
-                        'Beats Per Minute (BPM)'
-                    ]
+                    {'label': genre, 'value': genre} 
+                    for genre in sorted(df['Top Genre'].unique())
                 ],
-                value='Danceability',
+                value='All',
+                multi=True,
                 style={
                     'backgroundColor': PLOT_BGCOLOR,
                     'color': 'white',
-                    'border': f'1px solid {GRID_COLOR}'
+                    'border': f'1px solid {GRID_COLOR}',
+                    'width': '100%',
+                    'maxWidth': '1400px',
+                    'margin': '0 auto'
                 },
-                className='dropdown-dark'
+                className='dropdown-dark',
+                placeholder='Select genres...'
             ),
-        ], style={'width': '100%', 'maxWidth': '1400px', 'margin': '0 auto'}),
-        dcc.Graph(id='feature-correlation')
-    ], style={'width': '100%', 'maxWidth': '1800px', 'margin': '0 auto', 'padding': '0 20px'}),
-    
-    html.Div([
-        html.H3('Chart-Topping Artists', style={
-            **HEADER_STYLE,
-            'fontSize': '1.8em',
-            'textAlign': 'center',
-            'marginBottom': '25px'
-        }),
-        html.P([
-            "Discover the ",
-            html.Span("most influential artists", style=HIGHLIGHT_STYLE),
-            " in our collection! These are the creators who have multiple hits in the top 2000 songs."
-        ], style=EXPLANATION_STYLE),
-        dcc.Graph(id='top-artists')
-    ], style={'width': '100%', 'maxWidth': '1800px', 'margin': '0 auto', 'padding': '0 20px'}),
-    
-    html.Div([
-        html.H3('Popularity Across Time', style={
-            **HEADER_STYLE,
-            'fontSize': '1.8em',
-            'textAlign': 'center',
-            'marginBottom': '25px'
-        }),
-        html.P([
-            "Explore how song popularity evolves through time! Each dot represents a song, while the ",
-            html.Span("green trend line", style={'color': SPOTIFY_GREEN, 'fontWeight': 'bold'}),
-            " shows the average popularity for each year.",
-            html.Br(), html.Br(),
-            html.Span("Popularity Score Guide:", style={'textDecoration': 'underline', 'color': SPOTIFY_GREEN}),
-            html.Br(),
-            html.Span("• 80-100: ", style=HIGHLIGHT_STYLE), "Massive hits everyone knows", html.Br(),
-            html.Span("• 60-79: ", style=HIGHLIGHT_STYLE), "Very popular songs", html.Br(),
-            html.Span("• 40-59: ", style=HIGHLIGHT_STYLE), "Well-known songs", html.Br(),
-            html.Span("• 20-39: ", style=HIGHLIGHT_STYLE), "Moderately known songs", html.Br(),
-            html.Span("• 0-19: ", style=HIGHLIGHT_STYLE), "Less known songs"
-        ], style=EXPLANATION_STYLE),
-        html.Label('Filter by Genre (you can select multiple):', style={'color': TEXT_COLOR, 'fontWeight': 'bold', 'fontSize': '1.1em'}),
-        dcc.Dropdown(
-            id='genre-filter',
-            options=[
-                {'label': genre, 'value': genre} 
-                for genre in sorted(df['Top Genre'].unique())
-            ],
-            value='All',
-            multi=True,
-            style={
-                'backgroundColor': PLOT_BGCOLOR,
-                'color': 'white',
-                'border': f'1px solid {GRID_COLOR}',
-                'width': '100%',
-                'maxWidth': '1400px',
-                'margin': '0 auto'
-            },
-            className='dropdown-dark',
-            placeholder='Select genres...'
-        ),
-        dcc.Graph(id='popularity-trend')
-    ], style={'width': '100%', 'maxWidth': '1800px', 'margin': '0 auto', 'padding': '0 20px'})
+            dcc.Graph(id='popularity-trend')
+        ], style={
+            'padding': '30px',
+            'backgroundColor': 'rgba(43, 43, 43, 0.7)',
+            'borderRadius': '15px',
+            'border': f'1px solid {GRID_COLOR}',
+            'boxShadow': '0 4px 6px rgba(0, 0, 0, 0.1)'
+        })
+    ], style={
+        'width': '100%',
+        'maxWidth': '1800px',
+        'margin': '40px auto',
+        'padding': '20px'
+    })
 ], style={'backgroundColor': BACKGROUND_COLOR, 'padding': '20px', 'width': '100%', 'margin': '0 auto'})
 
 # CSS for dropdowns
@@ -721,234 +859,226 @@ def update_popularity_trend(selected_genres):
     return fig
 
 @callback(
-    [Output('cluster-visualization', 'figure'),
+    Output('radar-chart', 'figure'),
+    [Input('cluster-selector', 'value')]
+)
+def update_radar_chart(selected_cluster):
+    try:
+        cluster_data = df[df['Cluster'] == selected_cluster].copy()
+        
+        radar_features = ['Acousticness', 'Liveness', 'Popularity', 'Energy', 'Danceability', 'Valence']
+        mean_values = cluster_data[radar_features].mean()
+        
+        fig = go.Figure()
+        
+        fig.add_trace(go.Scatterpolar(
+            r=mean_values,
+            theta=radar_features,
+            fill='toself',
+            name='Cluster Characteristics',
+            line=dict(color=SPOTIFY_GREEN),
+            fillcolor=f'rgba(29, 185, 84, 0.3)'
+        ))
+
+        fig.update_layout(
+            showlegend=False,
+            plot_bgcolor=PLOT_BGCOLOR,
+            paper_bgcolor=PAPER_BGCOLOR,
+            font=dict(color=TEXT_COLOR),
+            polar=dict(
+                bgcolor=PLOT_BGCOLOR,
+                radialaxis=dict(
+                    visible=True, 
+                    range=[0, 100], 
+                    gridcolor=GRID_COLOR,
+                    color=TEXT_COLOR
+                ),
+                angularaxis=dict(
+                    gridcolor=GRID_COLOR,
+                    color=TEXT_COLOR
+                )
+            ),
+            margin=dict(t=0, b=0, l=50, r=50),  # Reduce margins
+            height=400  # Control the height
+        )
+        
+        return fig
+
+    except Exception as e:
+        print(f"Error in update_radar_chart: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        raise
+
+@callback(
+    [Output('songs-chart', 'figure'),
+     Output('preview-paths', 'data')],
+    [Input('cluster-selector', 'value'),
+     Input('cluster-page', 'data')]
+)
+def update_songs_chart(selected_cluster, page_number):
+    try:
+        if page_number is None:
+            page_number = 0
+            
+        cluster_data = df[df['Cluster'] == selected_cluster].copy()
+        total_songs = len(cluster_data)
+        total_pages = (total_songs + 9) // 10
+        page_number = max(0, min(page_number, total_pages - 1))
+        
+        start_idx = page_number * 10
+        top_songs = cluster_data.sort_values('Popularity', ascending=False).iloc[start_idx:start_idx + 10]
+
+        # Get preview paths
+        preview_paths = audio_previews(top_songs)
+
+        fig = go.Figure()
+
+        fig.add_trace(go.Bar(
+            x=top_songs['Popularity'],
+            y=[f"  {row['Title']}" for _, row in top_songs.iterrows()],
+            orientation='h',
+            marker_color=SPOTIFY_GREEN,
+            text=top_songs['Artist'],
+            textposition='auto',
+            customdata=list(zip(top_songs['Title'], top_songs['Artist'])),
+            hovertemplate="%{customdata[0]} by %{customdata[1]}<br>Popularity: %{x}<extra></extra>"
+        ))
+
+        fig.update_layout(
+            showlegend=False,
+            plot_bgcolor=PLOT_BGCOLOR,
+            paper_bgcolor=PAPER_BGCOLOR,
+            font=dict(color=TEXT_COLOR),
+            xaxis=dict(
+                title='Popularity Score',
+                gridcolor=GRID_COLOR,
+                color=TEXT_COLOR,
+                range=[0, 100]
+            ),
+            yaxis=dict(
+                title='',
+                gridcolor=GRID_COLOR,
+                color=TEXT_COLOR,
+                automargin=True
+            ),
+            margin=dict(t=0, b=50, l=150, r=50),
+            height=400
+        )
+        
+        return fig, preview_paths
+
+    except Exception as e:
+        print(f"Error in update_songs_chart: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        raise
+
+@callback(
+    [Output('audio-controls', 'children'),
      Output('nav-buttons', 'children')],
     [Input('cluster-selector', 'value'),
      Input('cluster-page', 'data')]
 )
-def update_cluster_visualization(selected_cluster, page_number):
-    if page_number is None:
-        page_number = 0
+def update_controls(selected_cluster, page_number):
+    try:
+        if page_number is None:
+            page_number = 0
+            
+        cluster_data = df[df['Cluster'] == selected_cluster].copy()
+        total_songs = len(cluster_data)
+        total_pages = (total_songs + 9) // 10
+        page_number = max(0, min(page_number, total_pages - 1))
         
-    cluster_data = df[df['Cluster'] == selected_cluster].copy()
-    total_songs = len(cluster_data)
-    total_pages = (total_songs + 9) // 10
-    page_number = max(0, min(page_number, total_pages - 1))
-    
-    start_idx = page_number * 10
-    top_songs = cluster_data.sort_values('Popularity', ascending=False).iloc[start_idx:start_idx + 10]
-    
-    preview_paths = audio_previews(top_songs)
-    
-    fig = go.Figure()
-    
-    radar_features = ['Acousticness', 'Liveness', 'Popularity', 'Energy', 'Danceability', 'Valence']
-    mean_values = cluster_data[radar_features].mean()
-    
-    fig.add_trace(go.Scatterpolar(
-        r=mean_values,
-        theta=radar_features,
-        fill='toself',
-        name='Cluster Characteristics',
-        line=dict(color=SPOTIFY_GREEN),
-        fillcolor=f'rgba(29, 185, 84, 0.3)'
-    ))
+        start_idx = page_number * 10
+        top_songs = cluster_data.sort_values('Popularity', ascending=False).iloc[start_idx:start_idx + 10]
+        
+        preview_paths = audio_previews(top_songs)
+        
+        # Create audio controls - now in reverse order to match graph
+        audio_controls = html.Div([
+            html.Div([
+                html.Span(
+                    row['Title'],
+                    style={'color': TEXT_COLOR, 'marginRight': '10px'}
+                ),
+                html.Span(
+                    f"by {row['Artist']}",
+                    style={'color': TEXT_COLOR, 'opacity': '0.7', 'marginRight': '10px'}
+                ),
+                html.Audio(
+                    id={'type': 'song-preview', 'index': idx},
+                    src=f"/audio_previews/{os.path.basename(preview_paths[row['Title']])}" if row['Title'] in preview_paths else "",
+                    controls=True,  # Show the native audio controls
+                    style={
+                        'height': '30px',
+                        'verticalAlign': 'middle'
+                    },
+                    **{'data-title': row['Title']}
+                )
+            ], style={
+                'display': 'flex',
+                'alignItems': 'center',
+                'marginBottom': '15px',
+                'backgroundColor': PLOT_BGCOLOR,
+                'padding': '10px',
+                'borderRadius': '5px'
+            }) for idx, (_, row) in enumerate(top_songs.iloc[::-1].iterrows()) if row['Title'] in preview_paths
+        ], style={
+            'maxWidth': '800px',
+            'margin': '0 auto',
+            'padding': '20px'
+        })
 
-    # Create song labels without play buttons
-    song_labels = [title for _, title in zip(range(len(top_songs)), top_songs['Title'])]
-    hover_texts = [f"{title} by {artist}" for title, artist in zip(top_songs['Title'], top_songs['Artist'])]
-
-    fig.add_trace(go.Bar(
-        x=top_songs['Popularity'],
-        y=song_labels,
-        orientation='h',
-        marker_color=SPOTIFY_GREEN,
-        name='Top Songs',
-        text=top_songs['Artist'],
-        textposition='auto',
-        customdata=list(zip(top_songs['Title'], [preview_paths.get(title, '') for title in top_songs['Title']])),
-        hovertemplate="%{hovertext}<br>Popularity: %{x}<extra></extra>",
-        hovertext=hover_texts,
-        xaxis='x2',
-        yaxis='y2',
-        hoverlabel=dict(
-            bgcolor=PLOT_BGCOLOR,
-            bordercolor=GRID_COLOR,
-            font=dict(family='Helvetica', size=12, color=TEXT_COLOR)
-        )
-    ))
-    
-    fig.update_layout(
-        title=dict(text=f"Analysis of {cluster_names[selected_cluster]}", font=dict(size=24, color=TEXT_COLOR), y=0.95),
-        showlegend=False,
-        plot_bgcolor=PLOT_BGCOLOR,
-        paper_bgcolor=PAPER_BGCOLOR,
-        font=dict(color=TEXT_COLOR),
-        polar=dict(
-            bgcolor=PLOT_BGCOLOR,
-            radialaxis=dict(visible=True, range=[0, 100], gridcolor=GRID_COLOR, color=TEXT_COLOR),
-            angularaxis=dict(gridcolor=GRID_COLOR, color=TEXT_COLOR)
-        ),
-        xaxis2=dict(
-            domain=[0.55, 0.95],
-            title='Popularity Score',
-            gridcolor=GRID_COLOR,
-            color=TEXT_COLOR,
-            range=[0, 100]
-        ),
-        yaxis2=dict(
-            domain=[0.1, 0.8],
-            title='',
-            gridcolor=GRID_COLOR,
-            color=TEXT_COLOR,
-            automargin=True,
-            ticksuffix='   '
-        ),
-        polar_domain=dict(x=[0.05, 0.45], y=[0.1, 0.9]),
-        annotations=[
-            dict(text="Cluster Characteristics<br>(Average Values)", x=0.25, y=1,
-                 showarrow=False, font=dict(size=14, color=TEXT_COLOR), xref="paper", yref="paper"),
-            dict(text="Top Songs in this Category", x=0.75, y=1,
-                 showarrow=False, font=dict(size=14, color=TEXT_COLOR), xref="paper", yref="paper")
-        ],
-        height=600,
-        margin=dict(t=100, b=50, l=100, r=50),
-        hoverdistance=100,
-        hovermode='closest'
-    )
-
-    # Create play buttons container
-    play_buttons = html.Div([
-        html.Div([
+        # Create navigation buttons
+        nav_buttons = html.Div([
             html.Button(
-                "▶",
-                id={'type': 'play-button', 'index': title},
+                "← Previous Songs",
+                id='prev-button',
                 style={
-                    'backgroundColor': SPOTIFY_GREEN,
+                    'backgroundColor': 'transparent',
                     'border': 'none',
-                    'color': 'white',
-                    'width': '30px',
-                    'height': '30px',
-                    'borderRadius': '15px',
-                    'cursor': 'pointer',
-                    'marginRight': '10px',
-                    'display': 'inline-block',
-                    'verticalAlign': 'middle'
-                }
-            ) if title in preview_paths else html.Div(
-                style={'width': '30px', 'display': 'inline-block'}
+                    'color': SPOTIFY_GREEN if page_number > 0 else 'gray',
+                    'cursor': 'pointer' if page_number > 0 else 'default',
+                    'fontSize': '14px',
+                    'fontWeight': 'bold',
+                    'padding': '8px 15px',
+                    'marginRight': '20px'
+                },
+                disabled=page_number <= 0
             ),
-            html.Div(
-                f"{title} - {row['Artist']}",
+            html.Span(
+                f"Page {page_number + 1} of {total_pages}",
                 style={
                     'color': TEXT_COLOR,
-                    'display': 'inline-block',
-                    'verticalAlign': 'middle'
+                    'fontSize': '14px',
+                    'margin': '0 20px'
                 }
+            ),
+            html.Button(
+                "Next Songs →",
+                id='next-button',
+                style={
+                    'backgroundColor': 'transparent',
+                    'border': 'none',
+                    'color': SPOTIFY_GREEN if (page_number + 1) * 10 < total_pages * 10 else 'gray',
+                    'cursor': 'pointer' if (page_number + 1) * 10 < total_pages * 10 else 'default',
+                    'fontSize': '14px',
+                    'fontWeight': 'bold',
+                    'padding': '8px 15px',
+                    'marginLeft': '20px'
+                },
+                disabled=(page_number + 1) * 10 >= total_pages * 10
             )
-        ], style={
-            'margin': '5px 0',
-            'padding': '5px',
-            'borderRadius': '5px',
-            'backgroundColor': PLOT_BGCOLOR
-        }) for _, row in top_songs.iterrows()
-    ], style={
-        'position': 'absolute',
-        'right': '20px',
-        'top': '50%',
-        'transform': 'translateY(-50%)',
-        'maxWidth': '300px',
-        'zIndex': 1000
-    })
+        ], style={'display': 'flex', 'justifyContent': 'center', 'alignItems': 'center'})
 
-    # Add hidden audio elements
-    audio_elements = html.Div([
-        html.Audio(
-            id={'type': 'song-preview', 'index': title},
-            src=f"/audio_previews/{os.path.basename(path)}",
-            style={'display': 'none'}
-        ) for title, path in preview_paths.items()
-    ], id='hidden-audio-players')
+        return audio_controls, nav_buttons
 
-    nav_buttons = [
-        html.Button(
-            "← Previous Songs",
-            id='prev-button',
-            style={
-                'backgroundColor': 'transparent',
-                'border': 'none',
-                'color': SPOTIFY_GREEN if page_number > 0 else 'gray',
-                'cursor': 'pointer' if page_number > 0 else 'default',
-                'fontSize': '14px',
-                'fontWeight': 'bold',
-                'padding': '8px 15px',
-                'position': 'absolute',
-                'bottom': '20px',
-                'left': '55%'
-            },
-            disabled=page_number <= 0
-        ),
-        html.Div(
-            f"Page {page_number + 1} of {total_pages}",
-            style={
-                'color': TEXT_COLOR,
-                'fontSize': '14px',
-                'position': 'absolute',
-                'bottom': '20px',
-                'left': '70%',
-                'transform': 'translateX(-50%)'
-            }
-        ),
-        html.Button(
-            "Next Songs →",
-            id='next-button',
-            style={
-                'backgroundColor': 'transparent',
-                'border': 'none',
-                'color': SPOTIFY_GREEN if (page_number + 1) * 10 < total_pages * 10 else 'gray',
-                'cursor': 'pointer' if (page_number + 1) * 10 < total_pages * 10 else 'default',
-                'fontSize': '14px',
-                'fontWeight': 'bold',
-                'padding': '8px 15px',
-                'position': 'absolute',
-                'bottom': '20px',
-                'right': '50px'
-            },
-            disabled=(page_number + 1) * 10 >= total_pages * 10
-        ),
-        play_buttons,
-        audio_elements
-    ]
-
-    return fig, nav_buttons
-
-# Add callback for play buttons
-@app.callback(
-    Output({'type': 'song-preview', 'index': MATCH}, 'playing'),
-    Input({'type': 'play-button', 'index': MATCH}, 'n_clicks'),
-    State({'type': 'song-preview', 'index': MATCH}, 'playing'),
-    prevent_initial_call=True
-)
-def play_audio(n_clicks, is_playing):
-    if not ctx.triggered_id:
-        raise PreventUpdate
-    
-    # Toggle playing state
-    return not is_playing if is_playing is not None else True
-
-# Add callback to stop other players
-@app.callback(
-    Output({'type': 'song-preview', 'index': ALL}, 'playing'),
-    Input({'type': 'song-preview', 'index': ALL}, 'playing'),
-    prevent_initial_call=True
-)
-def stop_other_players(playing_states):
-    if not ctx.triggered_id:
-        raise PreventUpdate
-    
-    triggered_id = ctx.triggered_id['index']
-    return [True if i['index'] == triggered_id else False 
-            for i in ctx.outputs_list[0]]
+    except Exception as e:
+        print(f"Error in update_controls: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        raise
 
 @callback(
     Output('cluster-page', 'data'),
