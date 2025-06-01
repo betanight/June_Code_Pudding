@@ -174,6 +174,8 @@ June_Code_Pudding/
 
 The dashboard is deployed on Render and automatically updates with new commits to the main branch. Visit the live version at [Spotify Analysis Dashboard](https://june-code-pudding-5.onrender.com).
 
+(*May be slow due to using the free version*)
+
 ## Future Enhancements
 - Real-time Spotify API integration
 - Additional clustering algorithms
