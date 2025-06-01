@@ -9,7 +9,7 @@ import numpy as np
 from sklearn.preprocessing import StandardScaler, LabelEncoder
 from sklearn.cluster import KMeans
 import seaborn as sns
-from .audio_preview import audio_previews
+from audio_preview import audio_previews
 from flask import send_from_directory
 import dash
 
