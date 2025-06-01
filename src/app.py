@@ -9,7 +9,7 @@ import numpy as np
 from sklearn.preprocessing import StandardScaler, LabelEncoder
 from sklearn.cluster import KMeans
 import seaborn as sns
-from audio_preview import audio_previews
+from .audio_preview import audio_previews
 from flask import send_from_directory
 import dash
 
@@ -25,8 +25,8 @@ server.config.update(
     )
 )
 
-# Get the absolute path to the directory containing this file
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+# Get the absolute path to the project root directory
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # Construct the path to the data file
 dataset_path = os.path.join(BASE_DIR, 'data', 'Spotify-2000.csv')
 df = pd.read_csv(dataset_path)

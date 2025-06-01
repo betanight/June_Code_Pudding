@@ -17,7 +17,9 @@ def audio_previews(current_songs_df):
     """
     print("\nStarting audio preview search...")
     client = deezer.Client()
-    download_dir = "audio_previews"
+    # Get the absolute path to the project root directory
+    root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    download_dir = os.path.join(root_dir, "audio_previews")
     os.makedirs(download_dir, exist_ok=True)
     preview_paths = {}
 
