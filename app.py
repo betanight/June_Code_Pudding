@@ -1,7 +1,7 @@
 # Core imports
 import os
 import pandas as pd
-from dash import Dash, dcc, html, callback, Input, Output, State, ctx
+from dash import Dash, dcc, html, callback, Input, Output, State, ctx, ALL, MATCH
 from dash.exceptions import PreventUpdate
 import plotly.graph_objects as go
 import plotly.express as px
@@ -11,6 +11,7 @@ from sklearn.cluster import KMeans
 import seaborn as sns
 from audio_preview import audio_previews
 from flask import send_from_directory
+import dash
 
 # Init app
 app = Dash(__name__, suppress_callback_exceptions=True)
@@ -753,18 +754,9 @@ def update_cluster_visualization(selected_cluster, page_number):
         fillcolor=f'rgba(29, 185, 84, 0.3)'
     ))
 
-    # Create song labels with play buttons for available previews
-    song_labels = []
-    hover_texts = []
-    for _, row in top_songs.iterrows():
-        title = row['Title']
-        artist = row['Artist']
-        if title in preview_paths:
-            song_labels.append(f"▶  {title}")  # Add play symbol with extra space
-            hover_texts.append(f"Click to play '{title}' by {artist}")
-        else:
-            song_labels.append(f"    {title}")  # Add space for alignment
-            hover_texts.append(f"{title} by {artist}")
+    # Create song labels without play buttons
+    song_labels = [title for _, title in zip(range(len(top_songs)), top_songs['Title'])]
+    hover_texts = [f"{title} by {artist}" for title, artist in zip(top_songs['Title'], top_songs['Artist'])]
 
     fig.add_trace(go.Bar(
         x=top_songs['Popularity'],
@@ -816,27 +808,67 @@ def update_cluster_visualization(selected_cluster, page_number):
         annotations=[
             dict(text="Cluster Characteristics<br>(Average Values)", x=0.25, y=1,
                  showarrow=False, font=dict(size=14, color=TEXT_COLOR), xref="paper", yref="paper"),
-            dict(text="Top Songs in this Category<br>(Click ▶ to preview)", x=0.75, y=1,
+            dict(text="Top Songs in this Category", x=0.75, y=1,
                  showarrow=False, font=dict(size=14, color=TEXT_COLOR), xref="paper", yref="paper")
         ],
         height=600,
         margin=dict(t=100, b=50, l=100, r=50),
         hoverdistance=100,
-        hovermode='closest',
-        clickmode='event'  # Enable click events
+        hovermode='closest'
     )
 
-    # Add hidden audio elements for each song
-    audio_elements = []
-    for title, path in preview_paths.items():
-        audio_elements.append(
-            html.Audio(
-                id={'type': 'song-preview', 'index': title},
-                src=f"/audio_previews/{os.path.basename(path)}",
-                style={'display': 'none'},
-                preload="auto"
+    # Create play buttons container
+    play_buttons = html.Div([
+        html.Div([
+            html.Button(
+                "▶",
+                id={'type': 'play-button', 'index': title},
+                style={
+                    'backgroundColor': SPOTIFY_GREEN,
+                    'border': 'none',
+                    'color': 'white',
+                    'width': '30px',
+                    'height': '30px',
+                    'borderRadius': '15px',
+                    'cursor': 'pointer',
+                    'marginRight': '10px',
+                    'display': 'inline-block',
+                    'verticalAlign': 'middle'
+                }
+            ) if title in preview_paths else html.Div(
+                style={'width': '30px', 'display': 'inline-block'}
+            ),
+            html.Div(
+                f"{title} - {row['Artist']}",
+                style={
+                    'color': TEXT_COLOR,
+                    'display': 'inline-block',
+                    'verticalAlign': 'middle'
+                }
             )
-        )
+        ], style={
+            'margin': '5px 0',
+            'padding': '5px',
+            'borderRadius': '5px',
+            'backgroundColor': PLOT_BGCOLOR
+        }) for _, row in top_songs.iterrows()
+    ], style={
+        'position': 'absolute',
+        'right': '20px',
+        'top': '50%',
+        'transform': 'translateY(-50%)',
+        'maxWidth': '300px',
+        'zIndex': 1000
+    })
+
+    # Add hidden audio elements
+    audio_elements = html.Div([
+        html.Audio(
+            id={'type': 'song-preview', 'index': title},
+            src=f"/audio_previews/{os.path.basename(path)}",
+            style={'display': 'none'}
+        ) for title, path in preview_paths.items()
+    ], id='hidden-audio-players')
 
     nav_buttons = [
         html.Button(
@@ -884,57 +916,39 @@ def update_cluster_visualization(selected_cluster, page_number):
             },
             disabled=(page_number + 1) * 10 >= total_pages * 10
         ),
-        html.Div(audio_elements, id='hidden-audio-players')
+        play_buttons,
+        audio_elements
     ]
 
     return fig, nav_buttons
 
-# Update the click handler
-app.clientside_callback(
-    """
-    function(clickData) {
-        if (!clickData || !clickData.points || !clickData.points[0]) return;
-        
-        const point = clickData.points[0];
-        const label = point.y;
-        
-        // Check if the clicked bar has a play button
-        if (!label.trim().startsWith('▶')) return;
-        
-        const songTitle = point.customdata[0];
-        const audioElements = document.querySelectorAll('audio');
-        let targetAudio = null;
-        
-        audioElements.forEach(audio => {
-            const id = JSON.parse(audio.getAttribute('data-dash-id'));
-            if (id.index === songTitle) {
-                targetAudio = audio;
-            }
-        });
-        
-        if (targetAudio) {
-            if (targetAudio.paused) {
-                // Stop all other playing audio elements
-                audioElements.forEach(a => {
-                    if (a !== targetAudio) {
-                        a.pause();
-                        a.currentTime = 0;
-                    }
-                });
-                targetAudio.play().catch(e => console.log('Error playing audio:', e));
-            } else {
-                targetAudio.pause();
-                targetAudio.currentTime = 0;
-            }
-        }
-        
-        return window.dash_clientside.no_update;
-    }
-    """,
-    Output('hidden-audio-players', 'children'),
-    Input('cluster-visualization', 'clickData'),
+# Add callback for play buttons
+@app.callback(
+    Output({'type': 'song-preview', 'index': MATCH}, 'playing'),
+    Input({'type': 'play-button', 'index': MATCH}, 'n_clicks'),
+    State({'type': 'song-preview', 'index': MATCH}, 'playing'),
     prevent_initial_call=True
 )
+def play_audio(n_clicks, is_playing):
+    if not ctx.triggered_id:
+        raise PreventUpdate
+    
+    # Toggle playing state
+    return not is_playing if is_playing is not None else True
+
+# Add callback to stop other players
+@app.callback(
+    Output({'type': 'song-preview', 'index': ALL}, 'playing'),
+    Input({'type': 'song-preview', 'index': ALL}, 'playing'),
+    prevent_initial_call=True
+)
+def stop_other_players(playing_states):
+    if not ctx.triggered_id:
+        raise PreventUpdate
+    
+    triggered_id = ctx.triggered_id['index']
+    return [True if i['index'] == triggered_id else False 
+            for i in ctx.outputs_list[0]]
 
 @callback(
     Output('cluster-page', 'data'),
