@@ -13,6 +13,11 @@ from audio_preview import audio_previews
 from flask import send_from_directory
 import dash
 
+# Debug prints
+print("Current working directory:", os.getcwd())
+print("Directory contents:", os.listdir())
+print("Data directory contents:", os.listdir("data"))
+
 # Init app
 app = Dash(__name__, suppress_callback_exceptions=True)
 server = app.server  # Expose the server variable for Gunicorn
@@ -25,10 +30,16 @@ server.config.update(
     )
 )
 
-# Get the absolute path to the project root directory
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-# Construct the path to the data file
+# Get the absolute path to the data file
+if os.environ.get('RENDER'):
+    # We're on Render
+    BASE_DIR = '/opt/render/project/src'
+else:
+    # Local development
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
 dataset_path = os.path.join(BASE_DIR, 'data', 'Spotify-2000.csv')
+print(f"Looking for dataset at: {dataset_path}")
 df = pd.read_csv(dataset_path)
 
 # Setting up clusters from sohini's code

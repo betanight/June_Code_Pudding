@@ -1,7 +1,6 @@
 # Project specific
 audio_previews/*
 !audio_previews/.gitkeep
-data/*.csv
 !data/README.md
 
 # Development environment
