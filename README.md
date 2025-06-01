@@ -11,74 +11,63 @@ This project evolved through several key development stages:
 3. **Audio Integration**: Addition of song preview functionality using the Deezer API.
 4. **Dashboard Development**: Creation of an interactive web interface combining all components.
 
-## Directory Structure
+## Repository Structure
 
 ```
 June_Code_Pudding/
-├── app.py                 # Main dashboard application with all visualizations and callbacks
-├── audio_preview.py       # Handles audio preview functionality and Deezer API integration
-├── data/
-│   └── Spotify-2000.csv  # Dataset containing 2000 songs with features and metadata
-├── notebooks/
-│   ├── eli_analysis_viktor.ipynb   # Extended analysis of audio features and correlations
-│   ├── Gio_Audio_Previews.ipynb    # Audio preview implementation and testing
-│   └── sohini_kmeans.ipynb         # K-means clustering implementation and analysis
-├── audio_previews/        # Cached audio preview files downloaded from Deezer
-├── requirements.txt      # Project dependencies and versions
+├── app.py                 # Main dashboard application
+├── audio_preview.py       # Audio preview functionality
+├── requirements.txt       # Project dependencies
+│
+├── data/                  # Data directory
+│   └── Spotify-2000.csv  # Main dataset
+│
+├── notebooks/            # Analysis notebooks
+│   ├── eli_analysis_viktor.ipynb  # Advanced feature analysis
+│   ├── Gio_Audio_Previews.ipynb   # Audio preview development
+│   └── sohini_kmeans.ipynb        # Clustering implementation
+│
+├── deploy/               # Deployment configuration
+│   ├── Procfile         # Process file for web servers
+│   └── render.yaml      # Render platform configuration
+│
+└── audio_previews/       # Cached audio files (gitignored)
+    └── .gitkeep         # Placeholder to maintain directory
 ```
 
-### Key Files Explained
+### Core Components
 
-#### Core Application Files
-
-- **`app.py`**: The heart of the dashboard, built with Plotly Dash. Contains:
-  - Dashboard layout and styling
-  - Interactive visualization components
-  - Callback functions for user interactions
-  - Data processing and visualization logic
+- **`app.py`**: The main dashboard application that integrates all components:
+  - Interactive visualizations
   - Audio preview integration
+  - Cluster-based recommendations
+  - Real-time data filtering
 
-- **`audio_preview.py`**: Handles all audio-related functionality:
-  - Deezer API integration for song previews
-  - Audio file downloading and caching
-  - Preview URL management
-  - Error handling for audio requests
+- **`audio_preview.py`**: Handles audio functionality:
+  - Deezer API integration
+  - Preview file management
+  - Caching system
+  - Error handling
 
-#### Data
-- **`data/Spotify-2000.csv`**: Main dataset containing:
-  - Song metadata (title, artist, year)
-  - Audio features (BPM, energy, danceability)
+### Development and Analysis
+
+- **Notebooks**: Jupyter notebooks showing the development process:
+  - Feature analysis and correlation studies
+  - K-means clustering implementation
+  - Audio preview system prototyping
+
+- **Data**: Contains the Spotify dataset with:
+  - Song metadata
+  - Audio features
   - Popularity metrics
   - Genre classifications
 
-#### Jupyter Notebooks
+### Deployment
 
-- **`eli_analysis_viktor.ipynb`**: Advanced analysis:
-  - Deep dive into audio features
-  - Correlation analysis between features
-  - Genre distribution patterns
-  - Popularity trend analysis
-
-- **`Gio_Audio_Previews.ipynb`**: Audio preview development:
-  - Deezer API integration testing
-  - Audio preview download functionality
-  - Cache system implementation
-  - Error handling and edge cases
-  - Prototype of the final audio_preview.py module
-
-- **`sohini_kmeans.ipynb`**: Machine learning implementation:
-  - K-means clustering setup
-  - Feature selection for clustering
-  - Cluster analysis and validation
-  - Visualization of cluster characteristics
-
-#### Configuration Files
-- **`requirements.txt`**: Project dependencies including:
-  - Dash and Plotly for visualization
-  - Pandas and NumPy for data processing
-  - Scikit-learn for machine learning
-  - Deezer-python for API integration
-  - Other supporting libraries
+- **Configuration Files**: Located in `deploy/`:
+  - Render platform settings
+  - Process management
+  - Environment configuration
 
 ## Features
 
