@@ -119,13 +119,17 @@ June_Code_Pudding/
 
 ## Setup Instructions
 
+### For Notebook Development
+
+If you want to work with the Jupyter notebooks for data analysis and development:
+
 1. **Clone the Repository**
    ```bash
    git clone https://github.com/betanight/June_Code_Pudding.git
    cd June_Code_Pudding
    ```
 
-2. **Create Virtual Environment**
+2. **Create and Activate Virtual Environment**
    ```bash
    # macOS/Linux
    python3 -m venv venv
@@ -141,14 +145,51 @@ June_Code_Pudding/
    pip install -r requirements.txt
    ```
 
+4. **Launch Jupyter Notebook**
+   ```bash
+   jupyter notebook
+   ```
+
+### For Running the Dashboard Application
+
+If you want to run the dashboard application:
+
+1. **Clone the Repository** (if you haven't already)
+   ```bash
+   git clone https://github.com/betanight/June_Code_Pudding.git
+   cd June_Code_Pudding
+   ```
+
+2. **If you were in a virtual environment, deactivate it**
+   ```bash
+   # macOS/Linux/Windows
+   deactivate
+   ```
+
+3. **Install Dependencies Globally**
+   ```bash
+   # macOS/Linux
+   pip3 install -r requirements.txt
+
+   # Windows
+   pip install -r requirements.txt
+   ```
+
 4. **Run the Dashboard**
    ```bash
+   # macOS/Linux
+   python3 app.py
+
+   # Windows
    python app.py
    ```
 
 5. **Access the Application**
    - Open your browser
    - Visit `http://localhost:8050`
+   - Start exploring the data!
+
+Note: The application is designed to run without a virtual environment to ensure proper system-wide access to audio functionality and dependencies.
 
 ## Technical Implementation
 
