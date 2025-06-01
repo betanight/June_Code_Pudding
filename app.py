@@ -1,6 +1,7 @@
+# Core imports
 import os
 import pandas as pd
-from dash import Dash, dcc, html, callback, Input, Output, State
+from dash import Dash, dcc, html, callback, Input, Output, State, ctx
 from dash.exceptions import PreventUpdate
 import plotly.graph_objects as go
 import plotly.express as px
@@ -8,6 +9,8 @@ import numpy as np
 from sklearn.preprocessing import StandardScaler, LabelEncoder
 from sklearn.cluster import KMeans
 import seaborn as sns
+from audio_preview import audio_previews
+from flask import send_from_directory
 
 # Init app
 app = Dash(__name__, suppress_callback_exceptions=True)
@@ -208,7 +211,7 @@ app.layout = html.Div([
             className='dropdown-dark'
         ),
         dcc.Graph(id='cluster-visualization'),
-        html.Div(id='nav-buttons', style={'position': 'relative', 'height': '50px', 'marginTop': '10px'})
+        html.Div(id='nav-buttons', style={'position': 'relative', 'height': '50px', 'marginTop': '10px'}),
     ], style={'width': '100%', 'maxWidth': '1800px', 'margin': '0 auto', 'padding': '0 20px'}),
     
     html.Div([
@@ -731,6 +734,11 @@ def update_cluster_visualization(selected_cluster, page_number):
     total_pages = (total_songs + 9) // 10
     page_number = max(0, min(page_number, total_pages - 1))
     
+    start_idx = page_number * 10
+    top_songs = cluster_data.sort_values('Popularity', ascending=False).iloc[start_idx:start_idx + 10]
+    
+    preview_paths = audio_previews(top_songs)
+    
     fig = go.Figure()
     
     radar_features = ['Acousticness', 'Liveness', 'Popularity', 'Energy', 'Danceability', 'Valence']
@@ -744,20 +752,31 @@ def update_cluster_visualization(selected_cluster, page_number):
         line=dict(color=SPOTIFY_GREEN),
         fillcolor=f'rgba(29, 185, 84, 0.3)'
     ))
-    
-    start_idx = page_number * 10
-    top_songs = cluster_data.sort_values('Popularity', ascending=False).iloc[start_idx:start_idx + 10]
-    
+
+    # Create song labels with play buttons for available previews
+    song_labels = []
+    hover_texts = []
+    for _, row in top_songs.iterrows():
+        title = row['Title']
+        artist = row['Artist']
+        if title in preview_paths:
+            song_labels.append(f"▶  {title}")  # Add play symbol with extra space
+            hover_texts.append(f"Click to play '{title}' by {artist}")
+        else:
+            song_labels.append(f"    {title}")  # Add space for alignment
+            hover_texts.append(f"{title} by {artist}")
+
     fig.add_trace(go.Bar(
         x=top_songs['Popularity'],
-        y=[f"{song[:20]}..." if len(song) > 20 else song for song in top_songs['Title']],
+        y=song_labels,
         orientation='h',
         marker_color=SPOTIFY_GREEN,
         name='Top Songs',
         text=top_songs['Artist'],
         textposition='auto',
-        customdata=top_songs['Title'],
-        hovertemplate="<b>%{customdata}</b><br>Artist: %{text}<br>Popularity: %{x}<extra></extra>",
+        customdata=list(zip(top_songs['Title'], [preview_paths.get(title, '') for title in top_songs['Title']])),
+        hovertemplate="%{hovertext}<br>Popularity: %{x}<extra></extra>",
+        hovertext=hover_texts,
         xaxis='x2',
         yaxis='y2',
         hoverlabel=dict(
@@ -797,15 +816,28 @@ def update_cluster_visualization(selected_cluster, page_number):
         annotations=[
             dict(text="Cluster Characteristics<br>(Average Values)", x=0.25, y=1,
                  showarrow=False, font=dict(size=14, color=TEXT_COLOR), xref="paper", yref="paper"),
-            dict(text="Top Songs in this Category", x=0.75, y=1,
+            dict(text="Top Songs in this Category<br>(Click ▶ to preview)", x=0.75, y=1,
                  showarrow=False, font=dict(size=14, color=TEXT_COLOR), xref="paper", yref="paper")
         ],
         height=600,
         margin=dict(t=100, b=50, l=100, r=50),
         hoverdistance=100,
-        hovermode='closest'
+        hovermode='closest',
+        clickmode='event'  # Enable click events
     )
-    
+
+    # Add hidden audio elements for each song
+    audio_elements = []
+    for title, path in preview_paths.items():
+        audio_elements.append(
+            html.Audio(
+                id={'type': 'song-preview', 'index': title},
+                src=f"/audio_previews/{os.path.basename(path)}",
+                style={'display': 'none'},
+                preload="auto"
+            )
+        )
+
     nav_buttons = [
         html.Button(
             "← Previous Songs",
@@ -851,10 +883,58 @@ def update_cluster_visualization(selected_cluster, page_number):
                 'right': '50px'
             },
             disabled=(page_number + 1) * 10 >= total_pages * 10
-        )
+        ),
+        html.Div(audio_elements, id='hidden-audio-players')
     ]
-    
+
     return fig, nav_buttons
+
+# Update the click handler
+app.clientside_callback(
+    """
+    function(clickData) {
+        if (!clickData || !clickData.points || !clickData.points[0]) return;
+        
+        const point = clickData.points[0];
+        const label = point.y;
+        
+        // Check if the clicked bar has a play button
+        if (!label.trim().startsWith('▶')) return;
+        
+        const songTitle = point.customdata[0];
+        const audioElements = document.querySelectorAll('audio');
+        let targetAudio = null;
+        
+        audioElements.forEach(audio => {
+            const id = JSON.parse(audio.getAttribute('data-dash-id'));
+            if (id.index === songTitle) {
+                targetAudio = audio;
+            }
+        });
+        
+        if (targetAudio) {
+            if (targetAudio.paused) {
+                // Stop all other playing audio elements
+                audioElements.forEach(a => {
+                    if (a !== targetAudio) {
+                        a.pause();
+                        a.currentTime = 0;
+                    }
+                });
+                targetAudio.play().catch(e => console.log('Error playing audio:', e));
+            } else {
+                targetAudio.pause();
+                targetAudio.currentTime = 0;
+            }
+        }
+        
+        return window.dash_clientside.no_update;
+    }
+    """,
+    Output('hidden-audio-players', 'children'),
+    Input('cluster-visualization', 'clickData'),
+    prevent_initial_call=True
+)
 
 @callback(
     Output('cluster-page', 'data'),
@@ -886,6 +966,11 @@ def update_page(prev_clicks, next_clicks, selected_cluster, current_page):
         return min(total_pages - 1, current_page + 1)
     
     return current_page
+
+# Add this to serve the audio files
+@app.server.route('/audio_previews/<path:path>')
+def serve_audio(path):
+    return send_from_directory('audio_previews', path)
 
 if __name__ == '__main__':
     # Get port from environment variable or use 8050 as default

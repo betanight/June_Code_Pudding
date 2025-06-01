@@ -1,84 +1,59 @@
-# define function for audio previews
-def audio_previews(df):
-    import requests
-    import os
-    import deezer
+import pandas as pd
+import numpy as np
+import librosa
+import requests
+import os
+import deezer
 
-    top_popular = df.nlargest(10, 'Popularity')[['Title', 'Artist', 'Popularity']]
-    top_songs = top_popular['Title'].tolist()
-
-    # Initialize Deezer client
-    client = deezer.Client() #
-
-
-    # Create an empty list to store track data
-    track_data = []
-
-    # Search for each song and get its preview URL
-    for title in top_songs:
-        search_results = client.search(title) #
+def audio_previews(current_songs_df):
+    """
+    Get audio previews for currently displayed songs.
     
-        # Check if any tracks were found
-        if search_results:
-            # Get the first track from the search results
-            track = search_results[0] 
-        
-            # Append track title and preview URL to the list
-            track_data.append({"Title": track.title, "Preview URL": track.preview}) #
-
-    # Create a Pandas DataFrame from the track data
-    # global data
-    data = pd.DataFrame(track_data)
-
-    # Print the DataFrame
-    # df
-
-
-    # Create a directory to save the downloaded files
+    Args:
+        current_songs_df: DataFrame with 'Title' and 'Artist' columns
+    
+    Returns:
+        dict: Song titles mapped to their preview file paths
+    """
+    client = deezer.Client()
     download_dir = "audio_previews"
-    os.makedirs(download_dir, exist_ok=True) # Create the directory if it doesn't exist
+    os.makedirs(download_dir, exist_ok=True)
+    preview_paths = {}
 
-    # Loop through each row of the DataFrame and download the audio
-    for index, row in data.iterrows():
-        track_title = row['Title']
-        preview_url = row['Preview URL']
+    for _, row in current_songs_df.iterrows():
+        title = row['Title']
+        artist = row['Artist']
+        search_query = f"{title} {artist}"
+        
+        search_results = client.search(search_query)
+        
+        if search_results:
+            track = search_results[0]
+            preview_url = track.preview
+            
+            if preview_url:
+                filename = f"{title}_{artist}.mp3".replace(" ", "_")
+                filepath = os.path.join(download_dir, filename)
 
-        # Create a basic filename from the track title (you might want to sanitize this further)
-        filename = f"{track_title}.mp3"  # Adjust file extension if needed
-        filepath = os.path.join(download_dir, filename)
+                try:
+                    if not os.path.exists(filepath):
+                        response = requests.get(preview_url, stream=True)
+                        response.raise_for_status()
 
-        try:
-            # Download the audio file
-            response = requests.get(preview_url, stream=True)
-            response.raise_for_status()  # Check for bad status codes
+                        with open(filepath, 'wb') as f:
+                            for chunk in response.iter_content(chunk_size=8192):
+                                f.write(chunk)
+                        print(f"Downloaded preview for '{title}' successfully!")
+                    
+                    preview_paths[title] = filepath
+                
+                except requests.exceptions.RequestException as e:
+                    print(f"Error downloading preview for '{title}': {e}")
+                except Exception as e:
+                    print(f"An unexpected error occurred for '{title}': {e}")
+            else:
+                print(f"No preview URL available for {title}")
+        else:
+            print(f"No preview found for {title}")
 
-            # Save the audio content to the file
-            with open(filepath, 'wb') as f:
-                for chunk in response.iter_content(chunk_size=8192):
-                    f.write(chunk)
-
-            print(f"Downloaded '{filename}' successfully!")
-
-        except requests.exceptions.RequestException as e:
-            print(f"Error downloading '{filename}' from {preview_url}: {e}")
-        except Exception as e:
-            print(f"An unexpected error occurred for '{filename}': {e}")
-
-
-            pass
-    random_idx = np.random.randint(0, data.shape[0])
-
-    # select a random song from the dataset
-    song = data.loc[random_idx, :]
-
-    # load the file and print its sampling rate 
-    file_path = f"audio_previews/"
-    file_path = file_path  + song["Title"] + '.mp3'
-    audio, sample_rate = librosa.load(file_path)
-    # print info about this song
-    print(' ')
-    print(f"Sampling rate: {sample_rate}")
-    print(song)
-
-    # output the audio
-    display(ipd.Audio(file_path))
+    return preview_paths
