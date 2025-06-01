@@ -205,7 +205,7 @@ Note: The application is designed to run without a virtual environment to ensure
 
 ## Deployment
 
-The dashboard is deployed on Render and automatically updates with new commits to the main branch. Visit the live version at [Spotify Analysis Dashboard](https://june-code-pudding-5.onrender.com).
+The dashboard is deployed on Render and automatically updates with new commits to the main branch. Visit the live version at [Spotify Analysis Dashboard](https://june-code-pudding-9.onrender.com).
 
 (*May be slow due to using the free version*)
 
