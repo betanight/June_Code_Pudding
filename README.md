@@ -15,39 +15,42 @@ This project evolved through several key development stages:
 
 ```
 June_Code_Pudding/
-├── app.py                 # Main dashboard application
-├── audio_preview.py       # Audio preview functionality
-├── requirements.txt       # Project dependencies
+├── src/                  # Source code directory
+│   ├── app.py           # Main dashboard application
+│   └── audio_preview.py # Audio preview functionality
 │
-├── data/                  # Data directory
-│   └── Spotify-2000.csv  # Main dataset
+├── data/                # Data directory
+│   └── Spotify-2000.csv # Main dataset
 │
-├── notebooks/            # Analysis notebooks
+├── notebooks/           # Analysis notebooks
 │   ├── eli_analysis_viktor.ipynb  # Advanced feature analysis
 │   ├── Gio_Audio_Previews.ipynb   # Audio preview development
 │   └── sohini_kmeans.ipynb        # Clustering implementation
 │
-├── deploy/               # Deployment configuration
-│   ├── Procfile         # Process file for web servers
-│   └── render.yaml      # Render platform configuration
+├── deploy/              # Deployment configuration
+│   ├── Procfile        # Process file for web servers
+│   └── render.yaml     # Render platform configuration
 │
-└── audio_previews/       # Cached audio files (gitignored)
-    └── .gitkeep         # Placeholder to maintain directory
+├── audio_previews/      # Cached audio files (gitignored)
+│   └── .gitkeep        # Placeholder to maintain directory
+│
+└── requirements.txt     # Project dependencies
 ```
 
 ### Core Components
 
-- **`app.py`**: The main dashboard application that integrates all components:
-  - Interactive visualizations
-  - Audio preview integration
-  - Cluster-based recommendations
-  - Real-time data filtering
+- **Source Code** (`src/`):
+  - **`app.py`**: Main dashboard application that integrates all components:
+    - Interactive visualizations
+    - Audio preview integration
+    - Cluster-based recommendations
+    - Real-time data filtering
 
-- **`audio_preview.py`**: Handles audio functionality:
-  - Deezer API integration
-  - Preview file management
-  - Caching system
-  - Error handling
+  - **`audio_preview.py`**: Handles audio functionality:
+    - Deezer API integration
+    - Preview file management
+    - Caching system
+    - Error handling
 
 ### Development and Analysis
 
@@ -167,10 +170,10 @@ If you want to run the dashboard application:
 4. **Run the Dashboard**
    ```bash
    # macOS/Linux
-   python3 app.py
+   python3 src/app.py
 
    # Windows
-   python app.py
+   python src/app.py
    ```
 
 5. **Access the Application**
