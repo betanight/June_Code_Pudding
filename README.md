@@ -20,7 +20,6 @@ June_Code_Pudding/
 ├── data/
 │   └── Spotify-2000.csv  # Dataset containing 2000 songs with features and metadata
 ├── notebooks/
-│   ├── eli_analysis.ipynb          # Initial data cleaning and feature analysis
 │   ├── eli_analysis_viktor.ipynb   # Extended analysis of audio features and correlations
 │   ├── Gio_Audio_Previews.ipynb    # Audio preview implementation and testing
 │   └── sohini_kmeans.ipynb         # K-means clustering implementation and analysis
