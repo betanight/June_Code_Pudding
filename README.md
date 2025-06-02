@@ -36,7 +36,6 @@ June_Code_Pudding/
 
 ### Core Components
 
-- **Source Code** (`src/`):
   - **`app.py`**: Main dashboard application that integrates all components:
     - Interactive visualizations
     - Audio preview integration
