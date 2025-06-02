@@ -31,9 +31,6 @@ June_Code_Pudding/
 │   ├── Procfile        # Process file for web servers
 │   └── render.yaml     # Render platform configuration
 │
-├── audio_previews/      # Cached audio files (gitignored)
-│   └── .gitkeep        # Placeholder to maintain directory
-│
 └── requirements.txt     # Project dependencies
 ```
 
