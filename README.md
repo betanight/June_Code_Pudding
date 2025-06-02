@@ -211,14 +211,6 @@ The dashboard is deployed on Render and automatically updates with new commits t
 - Extended audio preview capabilities
 - User preference learning
 
-## Contributing
-
-Contributions are welcome! Feel free to open issues or submit pull requests for any improvements or bug fixes.
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
 ## Acknowledgments
 
 - Spotify Dataset from Kaggle
